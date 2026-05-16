@@ -6,10 +6,11 @@ from torch.utils.data import Dataset
 
 
 class SkinLesionDataset(Dataset):
-    def __init__(self, image_dir, mask_dir, size=(256, 256)):
+    def __init__(self, image_dir, mask_dir, size=(256, 256), transform=None):
         self.image_dir = image_dir
         self.mask_dir = mask_dir
         self.size = size
+        self.transform = transform
 
         valid_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff'}
         self.images = sorted(
@@ -48,8 +49,18 @@ class SkinLesionDataset(Dataset):
         # Binarize mask
         mask = (mask > 127).astype(np.float32)
 
-        # to tensors
-        image = torch.from_numpy(image).permute(2, 0, 1)
-        mask = torch.from_numpy(mask).unsqueeze(0)
+        # Apply augmentations if provided
+        if self.transform is not None:
+            augmented = self.transform(image=image, mask=mask)
+            image = augmented['image']
+            mask = augmented['mask']
+            
+            # Albumentations might return the mask as 2D without the channel dimension
+            if mask.ndim == 2:
+                mask = mask.unsqueeze(0)
+        else:
+            # Fallback to manual tensor conversion if no transforms
+            image = torch.from_numpy(image).permute(2, 0, 1)
+            mask = torch.from_numpy(mask).unsqueeze(0)
 
         return image, mask
