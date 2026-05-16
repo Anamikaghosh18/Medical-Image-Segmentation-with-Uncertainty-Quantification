@@ -6,17 +6,20 @@ from torch.utils.data import Dataset
 
 
 class SkinLesionDataset(Dataset):
-    def __init__(self, image_dir, mask_dir, size=(256, 256), transform=None):
+    def __init__(self, image_dir, mask_dir, size=(256, 256), transform=None, image_files=None):
         self.image_dir = image_dir
         self.mask_dir = mask_dir
         self.size = size
         self.transform = transform
 
         valid_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff'}
-        self.images = sorted(
-            [f for f in os.listdir(image_dir)
-             if os.path.splitext(f.lower())[1] in valid_extensions]
-        )
+        if image_files is None:
+            self.images = sorted(
+                [f for f in os.listdir(image_dir)
+                 if os.path.splitext(f.lower())[1] in valid_extensions]
+            )
+        else:
+            self.images = image_files
 
     def __len__(self):
         return len(self.images)
