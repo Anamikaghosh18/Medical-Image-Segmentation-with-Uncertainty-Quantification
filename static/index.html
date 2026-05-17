@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Derma-AI Portal — Medical Image Segmentation with Uncertainty Quantification</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <!-- Landing / Role Selection Screen -->
+    <div id="role-selection-screen" class="landing-container">
+        <div class="landing-content">
+            <div class="role-icon"
+                style="margin: 0 auto 20px auto; width: 64px; height: 64px; background: rgba(13, 148, 136, 0.08); box-shadow: 0 0 20px rgba(13, 148, 136, 0.15);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" style="width: 32px; height: 32px;">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="M12 8v8M9 12h6" />
+                </svg>
+            </div>
+            <h1>Derma-AI Clinical Workstation</h1>
+            <p>Access the deep-learning diagnostic assistant, EHR patient registries, and uncertainty telemetry suite.
+            </p>
+
+            <div class="role-cards">
+                <div class="role-card" onclick="selectRole('clinical')">
+                    <div class="role-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px;">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                    </div>
+                    <h3>Clinical Professional</h3>
+                    <p>Enter EHR patient profiles, execute diagnostic boundary mappings, and evaluate spots.</p>
+                </div>
+                <div class="role-card" onclick="selectRole('evaluator')">
+                    <div class="role-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px;">
+                            <path d="M18 20V10M12 20V4M6 20v-6" />
+                        </svg>
+                    </div>
+                    <h3>System Evaluator</h3>
+                    <p>Review validation telemetry and compute deep-learning model performance metrics.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-app" class="app-container" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="role-icon"
+                    style="margin-bottom: 0; width: 36px; height: 36px; background: rgba(255, 255, 255, 0.08);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width: 20px; height: 20px;">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        <path d="M12 8v8M9 12h6" />
+                    </svg>
+                </div>
+                <div>
+                    <h2>Derma-AI</h2>
+                    <p>Clinical Workstation</p>
+                </div>
+            </div>
+            <nav>
+                <button class="nav-btn active" id="nav-clinical">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width: 18px; height: 18px;">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    </svg>
+                    Clinical Workstation
+                </button>
+                <button class="nav-btn" id="nav-eval" style="margin-top: 6px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width: 18px; height: 18px;">
+                        <path d="M18 20V10M12 20V4M6 20v-6" />
+                    </svg>
+                    System Telemetry
+                </button>
+                <button class="nav-btn logout-btn" id="nav-logout" style="margin-top: auto; margin-bottom: 20px;"
+                    onclick="logout()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width: 18px; height: 18px;">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                    </svg>
+                    Switch Role
+                </button>
+            </nav>
+            <div class="system-status">
+
+                <p><strong>Neural Engine</strong> <span style="color: #cbd5e1;">UNet v1.0</span></p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- CLINICAL VIEW -->
+            <div id="view-clinical" class="view" style="display: block;">
+                <header>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <h1>Clinical Workstation Console</h1>
+                            <p>Patient dermoscopy photographs analysis and evaluation.</p>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="dashboard">
+
+                    <!-- Premium Grid-Based Patient & Scan Registry -->
+                    <div class="card registry-grid-panel">
+                        <!-- Left Panel: Patient Registry Records -->
+                        <div class="registry-left">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <span class="cell-number">01</span>
+                                <h4
+                                    style="margin: 0; font-family: var(--font-title); font-size: 0.85em; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.6px;">
+                                    EHR Patient Profile</h4>
+                            </div>
+
+                            <div class="clinical-form-group" style="margin-bottom: 10px;">
+                                <label class="clinical-label">Patient Identifier</label>
+                                <input type="text" id="patient-id" class="clinical-input" placeholder="e.g. PID-2048-A"
+                                    value="PID-9082">
+                            </div>
+
+                            <div class="clinical-form-group" style="margin-bottom: 0;">
+                                <label class="clinical-label">Capture / Scan Date</label>
+                                <input type="date" id="scan-date" class="clinical-input" value="2026-05-17">
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Image Collection & Run Action -->
+                        <div class="registry-right" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <span class="cell-number">02</span>
+                                <h4
+                                    style="margin: 0; font-family: var(--font-title); font-size: 0.85em; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.6px;">
+                                    Dermoscopy Scan Capture</h4>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <!-- Sandbox Drag & Drop box -->
+                                <div class="upload-area" id="upload-area"
+                                    style="height: 75px; margin-bottom: 0; padding: 4px;">
+                                    <input type="file" id="file-input" accept="image/*" hidden>
+                                    <div id="upload-placeholder" class="upload-placeholder">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            style="width: 22px; height: 22px; color: #0d9488; margin-bottom: 2px;">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                                        </svg>
+                                        <span class="sub-text" style="font-size: 0.76em; font-weight: 600;">Drag scan
+                                            here or click to load</span>
+                                    </div>
+                                    <img id="preview-image" style="display: none; max-height: 65px;"
+                                        alt="Dermoscopy Scan Preview">
+                                </div>
+
+                                <!-- Execution Action & PDF Export -->
+                                <div
+                                    style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; width: 100%;">
+                                    <button id="analyze-btn" class="btn primary-btn"
+                                        style="height: 36px; width: 160px; font-size: 0.85em; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                                        disabled>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            style="width: 14px; height: 14px;">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <polygon points="10 8 16 12 10 16 10 8" />
+                                        </svg>
+                                        <span>Run AI Analysis</span>
+                                    </button>
+
+                                    <button id="pdf-btn" class="btn primary-btn"
+                                        style="display: none; height: 36px; width: 160px; background: #ffffff; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85em; align-items: center; justify-content: center; gap: 8px; transition: var(--transition-fast);">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            style="width: 14px; height: 14px; color: #0d9488;">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                            <polyline points="14 2 14 8 20 8" />
+                                            <line x1="16" y1="13" x2="8" y2="13" />
+                                            <line x1="16" y1="17" x2="8" y2="17" />
+                                        </svg>
+                                        <span>Export Report (PDF)</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Workstation Sub-Tabs Bar -->
+                    <div class="clinical-tabs">
+                        <button class="tab-btn active" id="tab-btn-visual" onclick="switchClinicalTab('visual')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                style="width: 16px; height: 16px;">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="22" y1="12" x2="18" y2="12" />
+                                <line x1="6" y1="12" x2="2" y2="12" />
+                                <line x1="12" y1="6" x2="12" y2="2" />
+                                <line x1="12" y1="22" x2="12" y2="18" />
+                            </svg>
+                            Clinical Overlay View
+                        </button>
+                        <button class="tab-btn" id="tab-btn-pathology" onclick="switchClinicalTab('pathology')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                style="width: 16px; height: 16px;">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                            </svg>
+                            Detailed Pathology Report
+                        </button>
+                        <button class="tab-btn" id="tab-btn-advisor" onclick="switchClinicalTab('advisor')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                style="width: 16px; height: 16px;">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            AI Clinical Advisor (LLM)
+                        </button>
+                    </div>
+
+                    <!-- TAB PANE 1: OVERLAY VISUALIZATION -->
+                    <div id="tab-visual" class="tab-pane" style="display: block;">
+                        <div class="card" style="margin-bottom:0;">
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap: wrap; gap: 10px;">
+                                <h3 style="margin:0; display:flex; align-items:center; gap:8px;">
+                                    Clinical Overlay Visualization
+                                    <span class="info-tooltip"
+                                        title="Switch between a simple solid red outline and a detailed colored map showing how sure the AI is for each area.">ⓘ</span>
+                                </h3>
+                                <select id="overlay-mode" style="display:none;">
+                                    <option value="boundary">Show Spot Outline</option>
+                                    <option value="heatmap">Show Detailed Certainty View</option>
+                                </select>
+                            </div>
+                            <!-- Dynamic Overlay Helper Text -->
+                            <div id="overlay-help-text"
+                                style="font-size: 0.82em; color: var(--text-secondary); margin-bottom: 15px; display: none; line-height: 1.45; padding: 10px 14px; background-color: var(--bg-main); border-left: 3px solid #0d9488; border-radius: 4px;">
+                            </div>
+                            <div class="image-result">
+                                <img id="result-image" src="" style="display: none;" alt="Result Outline Image">
+                                <img id="heatmap-image" src="" style="display: none;" alt="Heatmap Certainty Image">
+                                <div id="result-placeholder" class="placeholder">AI boundary output maps will appear
+                                    here</div>
+                            </div>
+                            <!-- Heatmap Interpretative Legend -->
+                            <div id="heatmap-legend" class="heatmap-legend" style="display: none;">
+                                <h4 class="legend-title">How to read the heatmap colors:</h4>
+                                <div class="legend-bar-container">
+                                    <div class="legend-gradient"></div>
+                                    <div class="legend-labels">
+                                        <span>Low Certainty (10%)</span>
+                                        <span>Medium Certainty (50%)</span>
+                                        <span>High Certainty (100%)</span>
+                                    </div>
+                                </div>
+                                <div class="legend-description-grid">
+                                    <div class="legend-item">
+                                        <span class="legend-dot red"
+                                            style="background: #ff0000; box-shadow: 0 0 6px rgba(255,0,0,0.4);"></span>
+                                        <span><strong>Red / Orange (70% - 100% certainty):</strong> Core Spot Area. The
+                                            AI is highly confident this is part of the spot.</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-dot yellow"
+                                            style="background: #ffff00; box-shadow: 0 0 6px rgba(255,255,0,0.4);"></span>
+                                        <span><strong>Yellow / Green (30% - 70% certainty):</strong> Borderline Zone.
+                                            The edge or border where the AI is moderately sure.</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-dot cyan"
+                                            style="background: #00ffff; box-shadow: 0 0 6px rgba(0,255,255,0.4);"></span>
+                                        <span><strong>Cyan / Blue (10% - 30% certainty):</strong> Low Certainty Area.
+                                            High chance of being healthy skin, with low chance of belonging to the
+                                            spot.</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-dot empty"></span>
+                                        <span><strong>Uncolored (&lt;10% certainty):</strong> Normal skin surface. The
+                                            AI is confident this is completely standard healthy skin.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB PANE 2: DETAILED PATHOLOGY REPORT -->
+                    <div id="tab-pathology" class="tab-pane" style="display: none;">
+                        <div class="card" style="margin-bottom:0;">
+                            <h3 style="margin-top: 0; margin-bottom: 20px;">AI Diagnostic Evaluation Report</h3>
+                            <div id="report-box" class="report-box waiting" style="margin-bottom: 20px;">
+                                Awaiting scan upload to initiate boundary extraction...
+                            </div>
+
+                            <div class="metrics-grid" id="metrics-grid" style="display: none; margin-bottom: 20px;">
+                                <div class="metric-card">
+                                    <span>Estimated Spot Size</span>
+                                    <strong id="area-val">--</strong>
+                                    <span
+                                        style="font-size: 0.72em; color: var(--text-secondary); margin-top: 4px; text-align: center;">Spot
+                                        size relative to image area</span>
+                                </div>
+                                <div class="metric-card">
+                                    <span>AI Certainty Rating</span>
+                                    <strong id="conf-val">--</strong>
+                                    <span
+                                        style="font-size: 0.72em; color: var(--text-secondary); margin-top: 4px; text-align: center;">AI
+                                        model statistical confidence</span>
+                                </div>
+                                <div class="metric-card">
+                                    <span>Spot Border Shape</span>
+                                    <strong id="irregularity-val">--</strong>
+                                    <span
+                                        style="font-size: 0.72em; color: var(--text-secondary); margin-top: 4px; text-align: center;">1.00
+                                        = smooth, &gt;1.50 = highly irregular</span>
+                                </div>
+                                <div class="metric-card">
+                                    <span>Physical Diameter</span>
+                                    <strong id="diameter-val">--</strong>
+                                    <span
+                                        style="font-size: 0.72em; color: var(--text-secondary); margin-top: 4px; text-align: center;">Calculated
+                                        spot width in millimeters</span>
+                                </div>
+                                <div class="metric-card" style="grid-column: span 2;">
+                                    <span>Asymmetry Index</span>
+                                    <strong id="asymmetry-val">--</strong>
+                                    <span
+                                        style="font-size: 0.72em; color: var(--text-secondary); margin-top: 4px; text-align: center;">Boundary
+                                        asymmetry comparison ratio</span>
+                                </div>
+                            </div>
+
+                            <!-- Clinical Interpretation & Diagnostic Guide -->
+                            <div class="clinical-interpretation-guide"
+                                style="padding: 16px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px;">
+                                <h4
+                                    style="margin: 0 0 12px 0; font-family: var(--font-title); font-size: 0.88em; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.6px; display: flex; align-items: center; gap: 8px;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        style="width: 14px; height: 14px; color: var(--primary);">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="12" y1="16" x2="12" y2="12" />
+                                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                                    </svg>
+                                    How to Understand Your Pathology Metrics
+                                </h4>
+
+                                <div
+                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 0.82em; color: var(--text-secondary); line-height: 1.45;">
+                                    <div>
+                                        <p style="margin-bottom: 6px; color: var(--text-primary);"><strong>📏 Spot Size
+                                                & Physical Diameter:</strong></p>
+                                        <ul style="margin: 0; padding-left: 14px; list-style-type: disc;">
+                                            <li style="margin-bottom: 4px;"><strong>Under 6.0 mm:</strong> Typically
+                                                standard for typical moles or healthy freckles.</li>
+                                            <li style="margin-bottom: 4px;"><strong>Over 6.0 mm:</strong> Atypical size.
+                                                Worth mention or monitoring by a doctor.</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <p style="margin-bottom: 6px; color: var(--text-primary);"><strong>⚖️ Asymmetry
+                                                Overlap Index:</strong></p>
+                                        <ul style="margin: 0; padding-left: 14px; list-style-type: disc;">
+                                            <li style="margin-bottom: 4px;"><strong>Under 35%:</strong>
+                                                Balanced/Symmetric shape. Highly common in benign features.</li>
+                                            <li style="margin-bottom: 4px;"><strong>Over 35%:</strong>
+                                                Irregular/Asymmetric growth. Worth standard clinical review.</li>
+                                        </ul>
+                                    </div>
+                                    <div
+                                        style="grid-column: span 2; border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 2px;">
+                                        <p style="margin-bottom: 6px; color: var(--text-primary);"><strong>🌟 Border
+                                                Shape & AI Certainty:</strong></p>
+                                        <ul
+                                            style="margin: 0; padding-left: 14px; list-style-type: disc; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                            <li><strong>Border Shape:</strong> Values near <strong>1.00</strong> denote
+                                                standard circular shapes. Scores above <strong>1.50</strong> highlight
+                                                highly jagged edges.</li>
+                                            <li><strong>AI Certainty (Confidence):</strong> Represents how statistically
+                                                sure the segmentation model is about the identified outline borders.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB PANE 3: AI DIAGNOSTIC ADVISOR (LLM) -->
+                    <div id="tab-advisor" class="tab-pane" style="display: none;">
+                        <div class="card" style="margin-bottom: 0;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                                <div class="role-icon"
+                                    style="width: 42px; height: 42px; background: rgba(13, 148, 136, 0.08); margin: 0; color: var(--primary);">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        style="width: 22px; height: 22px;">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; text-transform: uppercase; letter-spacing: 0.8px;">AI Clinical
+                                        Advisor</h3>
+                                    <span style="font-size: 0.8em; color: var(--text-secondary);">Interactive Medical
+                                        LLM Assistant (Ready for API hookup)</span>
+                                </div>
+                            </div>
+
+                            <div class="advisor-welcome"
+                                style="padding: 30px; text-align: center; background: var(--bg-main); border: 1.5px dashed var(--border-color); border-radius: 10px; margin-bottom: 20px;">
+                                <p
+                                    style="font-size: 1.05em; color: var(--text-primary); font-weight: 600; margin-bottom: 8px;">
+                                    Local Language Model Integration Sandbox</p>
+                                <p
+                                    style="font-size: 0.88em; color: var(--text-secondary); max-width: 550px; margin: 0 auto 20px auto; line-height: 1.5;">
+                                    Once you deploy your small local language model (like Llama-3-8B or Phi-3-Mini),
+                                    this interface will automatically feed the U-Net pathology metrics into the model to
+                                    generate descriptive recommendations, clinical follow-ups, and patient consultation
+                                    letters.
+                                </p>
+
+                                <div
+                                    style="text-align: left; background: #ffffff; padding: 18px; border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace; font-size: 0.82em; color: var(--text-secondary); line-height: 1.6; max-width: 600px; margin: 0 auto;">
+                                    <strong style="color: var(--primary); display: block; margin-bottom: 6px;">🤖 Draft
+                                        LLM Context Template:</strong>
+                                    "You are a clinical assistant. Review these segmented dermoscopy metrics: Patient
+                                    PID-9082, Scan Area: 14.2%, Model Certainty: 98.4%, Border Shape: 1.12 (Slightly
+                                    irregular), Diameter: 4.8 mm. Provide standard clinical guidance regarding whether
+                                    these features warrant excision or standard monitoring..."
+                                </div>
+                            </div>
+
+                            <!-- Sleek Interactive Input Sandbox -->
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" placeholder="Ask AI Advisor about this scan..."
+                                    class="clinical-input" style="flex: 1; padding: 12px 14px;" disabled>
+                                <button class="btn primary-btn" style="white-space: nowrap; padding: 0 20px;" disabled>
+                                    Consult Advisor
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EVALUATOR VIEW -->
+            <div id="view-eval" class="view" style="display: none;">
+                <header>
+                    <h1>System Analytics</h1>
+                    <p>Manage engine configuration, run validation pipelines, and explore clinical risk parameters.</p>
+                </header>
+
+                <!-- Telemetry Sub-Tab Bar (2 tabs) -->
+                <div class="clinical-tabs" style="margin-bottom: 0;">
+                    <button class="tab-btn active" id="telem-btn-engine" onclick="switchTelemTab('engine')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            style="width: 15px; height: 15px;">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                        Engine Control
+                    </button>
+                    <button class="tab-btn" id="telem-btn-abcd" onclick="switchTelemTab('abcd')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            style="width: 15px; height: 15px;">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                            <line x1="9" y1="9" x2="9.01" y2="9" />
+                            <line x1="15" y1="9" x2="15.01" y2="9" />
+                        </svg>
+                        ABCD Simulator
+                    </button>
+                </div>
+
+                <!-- ===== TAB 1: ENGINE CONTROL (inline metrics below) ===== -->
+                <div id="telem-engine" class="telem-pane">
+                    <div class="dashboard">
+                        <div class="card">
+                            <div
+                                style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                                    style="width: 16px; height: 16px; color: var(--primary);">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                </svg>
+                                <h3 style="margin: 0; font-size: 0.95em; font-weight: 700;">Engine Control & Validation
+                                </h3>
+                            </div>
+
+                            <label
+                                style="font-size: 0.82em; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; display: block;">Active
+                                Neural Engine Architecture</label>
+                            <select id="model-arch-select" class="clinical-input"
+                                style="width: 100%; height: 35px; padding: 0 10px; font-size: 0.82em; font-weight: 600; border: 1px solid var(--border-color); border-radius: 6px; background: #ffffff; margin-bottom: 18px;">
+                                <option value="unet">U-Net (Standard BCE + Dice)</option>
+                                <option value="transunet">TransUNet (Transformer Spatial)</option>
+                                <option value="attention_unet">Attention U-Net (Gate Attention)</option>
+                                <option value="unet_plusplus">UNet++ (Nested Blocks)</option>
+                            </select>
+
+                            <h3 style="margin-bottom: 12px;">Validation Parameters</h3>
+                            <label>Processing Batch Limit (8 images per batch): <span id="batch-val">10</span></label>
+                            <input type="range" id="eval-batches" min="1" max="50" value="10">
+
+                            <label>Visual Gallery Preview Count: <span id="sample-val">3</span></label>
+                            <input type="range" id="eval-samples" min="1" max="10" value="3">
+
+                            <button id="run-eval-btn" class="btn primary-btn" style="margin-top: 10px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+                                    <polyline points="23 4 23 10 17 10" />
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                                </svg>
+                                Execute Validation Pipeline
+                            </button>
+                        </div>
+
+                        <!-- Performance Metrics (inline, below the run button) -->
+                        <div class="card">
+                            <h3 style="margin-bottom: 16px;">Performance Metrics</h3>
+                            <div class="metrics-grid">
+                                <div class="metric-card">
+                                    <span>Mean Dice Score</span>
+                                    <strong id="eval-dice">--</strong>
+                                </div>
+                                <div class="metric-card">
+                                    <span>Mean Jaccard (IoU)</span>
+                                    <strong id="eval-iou">--</strong>
+                                </div>
+                                <div class="metric-card" style="grid-column: span 2;">
+                                    <span>Total Volume Evaluated</span>
+                                    <strong id="eval-vol">--</strong>
+                                </div>
+                            </div>
+
+                            <div
+                                style="margin-top: 16px; padding: 12px 14px; background: var(--bg-main); border-radius: 6px; border: 1px solid var(--border-color);">
+                                <p
+                                    style="font-size: 0.78em; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+                                    Evaluation Log</p>
+                                <div id="eval-log"
+                                    style="font-family: monospace; font-size: 0.84em; color: var(--text-secondary);">
+                                    System is ready for verification sequence.</div>
+                            </div>
+                        </div>
+
+                        <!-- ROC Curve & Gallery -->
+                        <div class="card" style="grid-column: span 2;">
+                            <h3 style="margin-bottom: 14px;">ROC Curve & Inference Gallery</h3>
+                            <img id="eval-roc"
+                                style="width: 100%; border-radius: 8px; display: none; border: 1px solid var(--border-color); margin-bottom: 16px;"
+                                alt="ROC Curve Performance Diagram">
+                            <img id="eval-gallery"
+                                style="display:none; width: 100%; border-radius: 8px; border: 1px solid var(--border-color);"
+                                alt="Validation Predictions Gallery">
+                            <div id="gallery-placeholder" class="placeholder"
+                                style="height: 140px; display: flex; align-items: center; justify-content: center;">
+                                Run validation to render image output comparison galleries
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- end telem-engine Tab 1 -->
+
+
+                <!-- ===== TAB 3: ABCD SIMULATOR ===== -->
+                <div id="telem-abcd" class="telem-pane" style="display: none;">
+                    <div class="dashboard" style="grid-template-columns: 1fr;">
+                        <div class="card"
+                            style="border: 1.5px solid rgba(13, 148, 136, 0.2); background: linear-gradient(to bottom right, #ffffff, #f0fdf4);">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 style="margin: 0; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 20px;">🔬</span>
+                                    Interactive ABCD Clinical Risk Simulator
+                                </h3>
+                                <span
+                                    style="font-size: 0.72em; background: rgba(13, 148, 136, 0.12); color: #0d9488; padding: 4px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Parametric
+                                    Sandbox</span>
+                            </div>
+                            <p
+                                style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.45;">
+                                Adjust the spot's structural parameters below to instantly calculate the standardised
+                                <strong>ABCD Dermatological Risk Score</strong> and generate immediate diagnostic
+                                recommendations in real-time — zero server lag.
+                            </p>
+                            <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px;">
+                                <!-- Sliders Column -->
+                                <div
+                                    style="display: flex; flex-direction: column; gap: 14px; border-right: 1px solid var(--border-color); padding-right: 24px;">
+                                    <div>
+                                        <label
+                                            style="display: flex; justify-content: space-between; font-size: 0.82em; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
+                                            <span>Asymmetry Index (A)</span>
+                                            <span id="sim-asymmetry-label"
+                                                style="color: var(--primary); font-weight: 700;">15%</span>
+                                        </label>
+                                        <input type="range" id="sim-asymmetry" min="0" max="100" value="15"
+                                            style="margin-bottom: 0;">
+                                        <span style="font-size: 0.72em; color: var(--text-muted);">0% = perfect
+                                            symmetry, &gt;35% = clinically asymmetric</span>
+                                    </div>
+                                    <div>
+                                        <label
+                                            style="display: flex; justify-content: space-between; font-size: 0.82em; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
+                                            <span>Border Irregularity (B)</span>
+                                            <span id="sim-border-label"
+                                                style="color: var(--primary); font-weight: 700;">1.15</span>
+                                        </label>
+                                        <input type="range" id="sim-border" min="100" max="300" value="115"
+                                            style="margin-bottom: 0;">
+                                        <span style="font-size: 0.72em; color: var(--text-muted);">1.00 = smooth circle,
+                                            &gt;1.50 = highly irregular border</span>
+                                    </div>
+                                    <div>
+                                        <label
+                                            style="display: flex; justify-content: space-between; font-size: 0.82em; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
+                                            <span>Color Count Variegation (C)</span>
+                                            <span id="sim-color-label"
+                                                style="color: var(--primary); font-weight: 700;">2 colors</span>
+                                        </label>
+                                        <input type="range" id="sim-color" min="1" max="6" value="2"
+                                            style="margin-bottom: 0;">
+                                        <span style="font-size: 0.72em; color: var(--text-muted);">Number of distinct
+                                            shades (brown, black, red, white, blue)</span>
+                                    </div>
+                                    <div>
+                                        <label
+                                            style="display: flex; justify-content: space-between; font-size: 0.82em; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
+                                            <span>Physical Diameter (D)</span>
+                                            <span id="sim-diameter-label"
+                                                style="color: var(--primary); font-weight: 700;">4.5 mm</span>
+                                        </label>
+                                        <input type="range" id="sim-diameter" min="10" max="150" value="45"
+                                            style="margin-bottom: 0;">
+                                        <span style="font-size: 0.72em; color: var(--text-muted);">6.0 mm is the
+                                            standard threshold for atypical mole size</span>
+                                    </div>
+                                </div>
+                                <!-- Real-time Output Column -->
+                                <div
+                                    style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 10px;">
+                                    <div id="sim-badge"
+                                        style="padding: 6px 14px; border-radius: 20px; font-size: 0.78em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: inline-block; background: #e6fbf3; color: #059669;">
+                                        Benign Features
+                                    </div>
+                                    <div
+                                        style="font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 2px;">
+                                        Calculated Risk Index</div>
+                                    <div id="sim-score"
+                                        style="font-family: var(--font-title); font-size: 3.5em; font-weight: 800; color: #0d9488; line-height: 1; margin-bottom: 15px;">
+                                        1.35</div>
+                                    <div id="sim-progress-container"
+                                        style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 15px;">
+                                        <div id="sim-progress-bar"
+                                            style="width: 25%; height: 100%; background: #10b981; transition: width 0.25s ease, background-color 0.25s ease;">
+                                        </div>
+                                    </div>
+                                    <div id="sim-verdict"
+                                        style="font-size: 0.85em; font-weight: 600; color: var(--text-primary); line-height: 1.45; min-height: 40px; padding: 0 10px;">
+                                        This spot presents benign characteristics. Recommend standard annual
+                                        dermatological screenings.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- end telem-abcd Tab 3 -->
+
+                <!-- ===== TAB 4: LIVE CONSOLE ===== -->
+                <div id="telem-console" class="telem-pane" style="display: none;">
+                    <div class="dashboard" style="grid-template-columns: 1fr;">
+                        <div class="card"
+                            style="background: #080f1d; border: 1.5px solid #111e36; border-radius: 8px; padding: 20px;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #1e2d45; padding-bottom: 10px;">
+                                <h3
+                                    style="margin: 0; color: #cbd5e1; font-size: 0.9em; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                    <span
+                                        style="display: inline-block; width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981;"></span>
+                                    Live Neural Engine Console Terminal
+                                </h3>
+                                <span
+                                    style="font-family: monospace; font-size: 0.72em; color: #475569;">dev@derma-ai:~</span>
+                            </div>
+                            <div id="terminal-log-box"
+                                style="height: 360px; overflow-y: auto; font-family: monospace; font-size: 0.82em; color: #a7f3d0; line-height: 1.7; padding: 14px; background: rgba(0,0,0,0.45); border-radius: 6px; border: 1px solid #1e2d45;">
+                                <div style="color: #4b5563;">[SYSTEM LOGS MONITOR ACTIVE — Awaiting neural operations]
+                                </div>
+                                <div>[INFO] Initializing CUDA backend loader... Device 0 (NVIDIA RTX Core GPU) detected.
+                                </div>
+                                <div>[INFO] Standard BCE+Dice weights loaded successfully from <span
+                                        style="color: #38bdf8;">/models/best_unet.pth</span>.</div>
+                                <div>[INFO] Neural Engine fully operational. Awaiting incoming dermoscopy boundary
+                                    scans...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- end telem-console Tab 4 -->
+
+            </div> <!-- end #view-eval -->
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
