@@ -4,3 +4,7 @@ torch
 torchvision
 matplotlib
 albumentations
+tqdm
+mlflow
+gradio
+
