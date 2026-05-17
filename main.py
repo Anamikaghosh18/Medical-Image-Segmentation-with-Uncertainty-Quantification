@@ -14,7 +14,8 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-
+from pathlib import Path
+from urllib.request import urlretrieve
 from src.UNetmodel import UNet
 
 app = FastAPI()
@@ -28,12 +29,23 @@ app.add_middleware(
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = UNet(in_channels=3, out_channels=1).to(device)
-model_path = "models/best_unet.pth"
+MODEL_URL = (
+    "https://github.com/Anamikaghosh18/"
+    "Medical-Image-Segmentation-with-Uncertainty-Quantification/"
+    "releases/download/ai-model/best_unet.pth"
+)
 
-if os.path.exists(model_path):
-    print("Loading model weights...")
-    model.load_state_dict(torch.load(model_path, map_location=device))
+MODEL_PATH = Path("models/best_unet.pth")
+MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+if not MODEL_PATH.exists():
+    print("Downloading model from GitHub Release...")
+    urlretrieve(MODEL_URL, MODEL_PATH)
+
+print("Loading model weights...")
+model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
 model.eval()
+print("Model loaded successfully.")
 
 def check_image_suitability(image_np, mask_np):
     """

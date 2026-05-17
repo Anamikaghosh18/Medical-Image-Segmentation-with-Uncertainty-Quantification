@@ -1,10 +1,13 @@
-opencv-python
+opencv-python-headless
 numpy
-torch 
+torch
 torchvision
 matplotlib
 albumentations
 tqdm
 mlflow
-gradio
-
+pillow
+uvicorn
+fastapi
+python-multipart
+scikit-learn

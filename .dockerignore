@@ -1,0 +1,9 @@
+.dvc/
+.git/
+.gitignore
+mlruns/
+mlflow.db
+notebooks/
+__pycache__/
+*.pyc
+data/
