@@ -48,14 +48,6 @@ model.eval()
 print("Model loaded successfully.")
 
 def check_image_suitability(image_np, mask_np):
-    """
-    Classifies image suitability for dermoscopic analysis.
-    Returns: (status_category, detail_message)
-    Categories:
-      - "valid": Confirmed valid skin scan.
-      - "atypical": Valid skin scan but with potential artifacts (hair, markers, scale).
-      - "unrelated": Completely unrelated image (landscape, animal, food, facial selfie, room scene).
-    """
     import cv2
     import numpy as np
 
@@ -86,7 +78,6 @@ def check_image_suitability(image_np, mask_np):
     # 3. Categorization logic
     
     # CASE A: Completely Unrelated/Wrong Image (Selfie, animal, food, room, text, highly colorful graphics)
-    # Calibrated to be highly conservative to eliminate false positives on valid skin scans.
     if edge_score > 26.0 or non_skin_percentage > 35.0 or std_hue > 42.0 or num_islands > 22:
         reasons = []
         if edge_score > 26.0: reasons.append("too many complex background details or text")
@@ -121,22 +112,6 @@ async def predict(file: UploadFile = File(...), model_name: str = Form("unet")):
     image = Image.open(io.BytesIO(contents)).convert("RGB")
     image_np = np.array(image)
     
-    # ==========================================
-    # EXPERIMENTAL MODEL REGISTRY REGISTRY
-    # ==========================================
-    # To run experiments with future neural network models (e.g. TransUNet, Attention U-Net, UNet++):
-    # 1. Load your model checkpoints globally:
-    #    transunet = TransUNet(...).to(device)
-    #    transunet.load_state_dict(torch.load("models/best_transunet.pth"))
-    # 2. Map the active model instance using the chosen model_name:
-    #    models_dict = {
-    #        "unet": model, # standard U-Net
-    #        "transunet": transunet,
-    #        "attention_unet": attention_unet,
-    #        "unet_plusplus": unet_plusplus
-    #    }
-    #    active_model = models_dict.get(model_name, model)
-    # ==========================================
     active_model = model
     
     transform = A.Compose([A.Resize(256, 256), ToTensorV2()])
@@ -209,7 +184,7 @@ async def predict(file: UploadFile = File(...), model_name: str = Form("unet")):
                 else:
                     asymmetry_val = "0.0%"
                 
-                # 3. Physical Diameter (Assuming 15 pixels = 1mm)
+                # 3. Physical Diameter
                 # equivalent circle diameter d = 2 * sqrt(area / pi)
                 pixel_to_mm_ratio = 15.0
                 diameter_pixels = 2 * np.sqrt(area / np.pi)
