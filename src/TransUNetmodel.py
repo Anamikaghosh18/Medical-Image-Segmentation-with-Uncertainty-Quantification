@@ -16,11 +16,6 @@ class DoubleConv(nn.Module):
         return self.conv(x)
 
 class TransformerBottleneck(nn.Module):
-    """
-    THE CORE DIFFERENCE: Replaces the CNN bottleneck with Self-Attention.
-    Instead of passing a 3x3 local filter over the image, this allows every pixel 
-    in the bottleneck to "attend" (look at) every other pixel simultaneously to understand global context.
-    """
     def __init__(self, dim=1024, num_heads=8):
         super().__init__()
         # Standard Multi-Head Self Attention layer
