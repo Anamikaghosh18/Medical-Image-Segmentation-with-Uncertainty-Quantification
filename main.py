@@ -86,7 +86,7 @@ def check_image_suitability(image_np, mask_np):
         if num_islands > 22: reasons.append("an unusually chaotic shape layout")
         
         reason_str = " and ".join(reasons[:2]) if len(reasons) > 1 else reasons[0]
-        return "unrelated", f"We couldn't recognize this as a skin photo because we detected {reason_str}. Please upload a clear, close-up picture of a skin mole or spot."
+        return "unrelated", f"This image does not appear to be a valid skin scan. The AI detected {reason_str}. Please upload a clear, close-up, dermoscopic or high-quality macro image of a skin lesion or spot."
 
     # CASE B: Atypical Skin Scan (Clinical artifacts, hair, marker ink, ruler markings, but still a skin scan)
     elif edge_score > 12.0 or non_skin_percentage > 12.0 or std_hue > 26.0 or num_islands > 7:

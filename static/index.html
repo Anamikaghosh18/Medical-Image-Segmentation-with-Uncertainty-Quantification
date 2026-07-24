@@ -219,13 +219,6 @@
                             </svg>
                             Detailed Pathology Report
                         </button>
-                        <button class="tab-btn" id="tab-btn-advisor" onclick="switchClinicalTab('advisor')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                style="width: 16px; height: 16px;">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                            </svg>
-                            AI Clinical Advisor (LLM)
-                        </button>
                     </div>
 
                     <!-- TAB PANE 1: OVERLAY VISUALIZATION -->
@@ -395,59 +388,6 @@
                         </div>
                     </div>
 
-                    <!-- TAB PANE 3: AI DIAGNOSTIC ADVISOR (LLM) -->
-                    <div id="tab-advisor" class="tab-pane" style="display: none;">
-                        <div class="card" style="margin-bottom: 0;">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                                <div class="role-icon"
-                                    style="width: 42px; height: 42px; background: rgba(13, 148, 136, 0.08); margin: 0; color: var(--primary);">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        style="width: 22px; height: 22px;">
-                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 style="margin: 0; text-transform: uppercase; letter-spacing: 0.8px;">AI Clinical
-                                        Advisor</h3>
-                                    <span style="font-size: 0.8em; color: var(--text-secondary);">Interactive Medical
-                                        LLM Assistant (Ready for API hookup)</span>
-                                </div>
-                            </div>
-
-                            <div class="advisor-welcome"
-                                style="padding: 30px; text-align: center; background: var(--bg-main); border: 1.5px dashed var(--border-color); border-radius: 10px; margin-bottom: 20px;">
-                                <p
-                                    style="font-size: 1.05em; color: var(--text-primary); font-weight: 600; margin-bottom: 8px;">
-                                    Local Language Model Integration Sandbox</p>
-                                <p
-                                    style="font-size: 0.88em; color: var(--text-secondary); max-width: 550px; margin: 0 auto 20px auto; line-height: 1.5;">
-                                    Once you deploy your small local language model (like Llama-3-8B or Phi-3-Mini),
-                                    this interface will automatically feed the U-Net pathology metrics into the model to
-                                    generate descriptive recommendations, clinical follow-ups, and patient consultation
-                                    letters.
-                                </p>
-
-                                <div
-                                    style="text-align: left; background: #ffffff; padding: 18px; border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace; font-size: 0.82em; color: var(--text-secondary); line-height: 1.6; max-width: 600px; margin: 0 auto;">
-                                    <strong style="color: var(--primary); display: block; margin-bottom: 6px;">🤖 Draft
-                                        LLM Context Template:</strong>
-                                    "You are a clinical assistant. Review these segmented dermoscopy metrics: Patient
-                                    PID-9082, Scan Area: 14.2%, Model Certainty: 98.4%, Border Shape: 1.12 (Slightly
-                                    irregular), Diameter: 4.8 mm. Provide standard clinical guidance regarding whether
-                                    these features warrant excision or standard monitoring..."
-                                </div>
-                            </div>
-
-                            <!-- Sleek Interactive Input Sandbox -->
-                            <div style="display: flex; gap: 10px;">
-                                <input type="text" placeholder="Ask AI Advisor about this scan..."
-                                    class="clinical-input" style="flex: 1; padding: 12px 14px;" disabled>
-                                <button class="btn primary-btn" style="white-space: nowrap; padding: 0 20px;" disabled>
-                                    Consult Advisor
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
